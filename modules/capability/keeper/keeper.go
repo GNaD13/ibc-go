@@ -274,6 +274,42 @@ func (sk ScopedKeeper) NewCapability(ctx sdk.Context, name string) (*types.Capab
 	return capability, nil
 }
 
+// SetCapability attempts to assign given capability for keeper. 
+func (sk ScopedKeeper) SetCapability(ctx sdk.Context, cap *types.Capability, name string) error {
+	if strings.TrimSpace(name) == "" {
+		return errorsmod.Wrap(types.ErrInvalidCapabilityName, "capability name cannot be empty")
+	}
+
+	if _, ok := sk.GetCapability(ctx, name); ok {
+		return errorsmod.Wrapf(types.ErrCapabilityTaken, fmt.Sprintf("module: %s, name: %s", sk.module, name))
+	}
+
+	index := cap.GetIndex()
+	memStore := ctx.KVStore(sk.memKey)
+
+	// update capability owner set
+	// we don't need to check error here because if this module is cap's owner
+	// then we don't need to set owner for it
+	sk.addOwner(ctx, cap, name)
+
+	// Set the forward mapping between the module and capability tuple and the
+	// capability name in the memKVStore
+	memStore.Set(types.FwdCapabilityKey(sk.module, cap), []byte(name))
+
+	// Set the reverse mapping between the module and capability name and the
+	// index in the in-memory store. Since marshalling and unmarshalling into a store
+	// will change memory address of capability, we simply store index as value here
+	// and retrieve the in-memory pointer to the capability from our map
+	memStore.Set(types.RevCapabilityKey(sk.module, name), sdk.Uint64ToBigEndian(index))
+
+	// Set the mapping from index from index to in-memory capability in the go map
+	sk.capMap[index] = cap
+
+	logger(ctx).Info("created new capability", "module", sk.module, "name", name)
+
+	return nil
+}
+
 // AuthenticateCapability attempts to authenticate a given capability and name
 // from a caller. It allows for a caller to check that a capability does in fact
 // correspond to a particular name. The scoped keeper will lookup the capability
