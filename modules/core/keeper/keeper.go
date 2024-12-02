@@ -107,6 +107,12 @@ func (k *Keeper) SetRouter(rtr *porttypes.Router) {
 	k.Router.Seal()
 }
 
+// ResetRouter sets the Router in IBC Keeper to nil.
+func (k *Keeper) ResetRouter() {
+	k.PortKeeper.Router = nil
+	k.Router = nil
+}
+
 // GetAuthority returns the ibc module's authority.
 func (k Keeper) GetAuthority() string {
 	return k.authority
