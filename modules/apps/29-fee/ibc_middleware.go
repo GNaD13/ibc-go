@@ -52,11 +52,13 @@ func (im IBCMiddleware) OnChanOpenInit(
 
 	if strings.TrimSpace(version) == "" {
 		// default version
+		im.keeper.Logger(ctx).Error("Fee Middleware", version)
 		versionMetadata = types.Metadata{
 			FeeVersion: types.Version,
 			AppVersion: "",
 		}
 	} else {
+		im.keeper.Logger(ctx).Error("Fee Middleware else", version)
 		metadata, err := types.MetadataFromVersion(version)
 		if err != nil {
 			// Since it is valid for fee version to not be specified, the above middleware version may be for a middleware

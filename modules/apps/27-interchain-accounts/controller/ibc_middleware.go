@@ -56,6 +56,7 @@ func (im IBCMiddleware) OnChanOpenInit(
 	counterparty channeltypes.Counterparty,
 	version string,
 ) (string, error) {
+	im.keeper.Logger(ctx).Error("ICA Controller mdw ", version)
 	if !im.keeper.GetParams(ctx).ControllerEnabled {
 		return "", types.ErrControllerSubModuleDisabled
 	}
