@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"slices"
 
 	errorsmod "cosmossdk.io/errors"
@@ -58,7 +59,7 @@ func NewDefaultMetadataString(controllerConnectionID, hostConnectionID string) s
 func MetadataFromVersion(versionString string) (Metadata, error) {
 	var metadata Metadata
 	if err := ModuleCdc.UnmarshalJSON([]byte(versionString), &metadata); err != nil {
-		return Metadata{}, errorsmod.Wrapf(ErrUnknownDataType, "cannot unmarshal ICS-27 interchain accounts metadata ", versionString)
+		return Metadata{}, errorsmod.Wrapf(ErrUnknownDataType, fmt.Sprintf("cannot unmarshal ICS-27 interchain accounts metadata %s", versionString))
 	}
 	return metadata, nil
 }

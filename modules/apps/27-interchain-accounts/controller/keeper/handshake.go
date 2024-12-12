@@ -49,6 +49,7 @@ func (k Keeper) OnChanOpenInit(
 		}
 
 		metadata = icatypes.NewDefaultMetadata(connectionHops[0], connection.GetCounterparty().GetConnectionID())
+		k.Logger(ctx).Error("Metadata ", metadata)
 	} else {
 		metadata, err = icatypes.MetadataFromVersion(version)
 		if err != nil {

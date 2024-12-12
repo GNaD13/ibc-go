@@ -1,6 +1,7 @@
 package fee
 
 import (
+	"fmt"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
@@ -52,13 +53,13 @@ func (im IBCMiddleware) OnChanOpenInit(
 
 	if strings.TrimSpace(version) == "" {
 		// default version
-		im.keeper.Logger(ctx).Error("Fee Middleware", version)
+		im.keeper.Logger(ctx).Error(fmt.Sprintf("Fee Middleware %s", version))
 		versionMetadata = types.Metadata{
 			FeeVersion: types.Version,
 			AppVersion: "",
 		}
 	} else {
-		im.keeper.Logger(ctx).Error("Fee Middleware else", version)
+		im.keeper.Logger(ctx).Error(fmt.Sprintf("Fee Middleware else %s", version))
 		metadata, err := types.MetadataFromVersion(version)
 		if err != nil {
 			// Since it is valid for fee version to not be specified, the above middleware version may be for a middleware
