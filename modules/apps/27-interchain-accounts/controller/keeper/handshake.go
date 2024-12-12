@@ -97,35 +97,44 @@ func (k Keeper) OnChanOpenAck(
 	channelID string,
 	counterpartyVersion string,
 ) error {
+	k.Logger(ctx).Error("ICA ACK")
 	if portID == icatypes.HostPortID {
+		k.Logger(ctx).Error("ICA ACK 1")
 		return errorsmod.Wrapf(icatypes.ErrInvalidControllerPort, "portID cannot be host chain port ID: %s", icatypes.HostPortID)
 	}
 
 	if !strings.HasPrefix(portID, icatypes.ControllerPortPrefix) {
+		k.Logger(ctx).Error("ICA ACK 2")
 		return errorsmod.Wrapf(icatypes.ErrInvalidControllerPort, "expected %s{owner-account-address}, got %s", icatypes.ControllerPortPrefix, portID)
 	}
 
 	metadata, err := icatypes.MetadataFromVersion(counterpartyVersion)
 	if err != nil {
+		k.Logger(ctx).Error("ICA ACK 3")
 		return err
 	}
 	if activeChannelID, found := k.GetOpenActiveChannel(ctx, metadata.ControllerConnectionId, portID); found {
+		k.Logger(ctx).Error("ICA ACK 4")
 		return errorsmod.Wrapf(icatypes.ErrActiveChannelAlreadySet, "existing active channel %s for portID %s", activeChannelID, portID)
 	}
 
 	channel, found := k.channelKeeper.GetChannel(ctx, portID, channelID)
 	if !found {
+		k.Logger(ctx).Error("ICA ACK 5")
 		return errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "failed to retrieve channel %s on port %s", channelID, portID)
 	}
 
 	if err := icatypes.ValidateControllerMetadata(ctx, k.channelKeeper, channel.ConnectionHops, metadata); err != nil {
+		k.Logger(ctx).Error("ICA ACK 6")
 		return err
 	}
 
 	if strings.TrimSpace(metadata.Address) == "" {
+		k.Logger(ctx).Error("ICA ACK 7")
 		return errorsmod.Wrap(icatypes.ErrInvalidAccountAddress, "interchain account address cannot be empty")
 	}
 
+	k.Logger(ctx).Error("ICA ACK 8")
 	k.SetActiveChannelID(ctx, metadata.ControllerConnectionId, portID, channelID)
 	k.SetInterchainAccountAddress(ctx, metadata.ControllerConnectionId, portID, metadata.Address)
 
